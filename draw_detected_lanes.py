@@ -1,6 +1,6 @@
 import numpy as np
 import cv2
-from PIL.Image import fromarray
+from PIL.Image import fromarray, BILINEAR
 from moviepy.editor import VideoFileClip
 from IPython.display import HTML
 from keras.models import model_from_json
@@ -54,7 +54,7 @@ def road_lines(image):
 
     # Re-size to match the original image
     lane_image = fromarray(lane_drawn)
-    lane_image = lane_image.resize((1280, 720))
+    lane_image = lane_image.resize((1280, 720),BILINEAR)
     lane_image = np.asarray(lane_image,dtype="uint8")
 
     # Merge the lane drawing onto the original image
