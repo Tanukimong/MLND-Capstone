@@ -65,10 +65,10 @@ def road_lines(image):
 lanes = Lanes()
 
 # Where to save the output video
-vid_output = sys.argv[1]
+vid_output = sys.argv[2]
 
 # Location of the input video
-clip1 = VideoFileClip(sys.argv[2])
+clip1 = VideoFileClip(sys.argv[1])
 
 vid_clip = clip1.fl_image(road_lines)
 vid_clip.write_videofile(vid_output, audio=False)
