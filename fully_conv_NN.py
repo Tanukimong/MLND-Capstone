@@ -21,10 +21,7 @@ from keras.layers.normalization import BatchNormalization
 from keras.preprocessing.image import ImageDataGenerator
 
 # Load training images
-train_images = pickle.load(open("full_CNN_train.p", "rb" ))
-
-# Load image labels
-labels = pickle.load(open("full_CNN_labels.p", "rb" ))
+train_images,labels, _ = pickle.load(open("tanuki_train.p", "rb" ))
 
 # Make into arrays as the neural network wants these
 train_images = np.array(train_images)
