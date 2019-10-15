@@ -50,35 +50,35 @@ model.add(BatchNormalization(input_shape=input_shape))
 
 # Below layers were re-named for easier reading of model summary; this not necessary
 # Conv Layer 1
-model.add(Convolution2D(64, 3, 3, border_mode='valid', subsample=(1,1), activation = 'relu', name = 'Conv1'))
+model.add(Convolution2D(32, 3, 3, border_mode='valid', subsample=(1,1), activation = 'relu', name = 'Conv1'))
 
 # Conv Layer 2
-model.add(Convolution2D(64, 3, 3, border_mode='valid', subsample=(1,1), activation = 'relu', name = 'Conv2'))
+model.add(Convolution2D(32, 3, 3, border_mode='valid', subsample=(1,1), activation = 'relu', name = 'Conv2'))
 
 # Pooling 1
 model.add(MaxPooling2D(pool_size=pool_size))
 
 # Conv Layer 3
-model.add(Convolution2D(128, 3, 3, border_mode='valid', subsample=(1,1), activation = 'relu', name = 'Conv3'))
+model.add(Convolution2D(64, 3, 3, border_mode='valid', subsample=(1,1), activation = 'relu', name = 'Conv3'))
 model.add(Dropout(0.2))
 
 # Conv Layer 4
-model.add(Convolution2D(128, 3, 3, border_mode='valid', subsample=(1,1), activation = 'relu', name = 'Conv4'))
+model.add(Convolution2D(64, 3, 3, border_mode='valid', subsample=(1,1), activation = 'relu', name = 'Conv4'))
 model.add(Dropout(0.2))
 
 # Conv Layer 5
-model.add(Convolution2D(128, 3, 3, border_mode='valid', subsample=(1,1), activation = 'relu', name = 'Conv5'))
+model.add(Convolution2D(64, 3, 3, border_mode='valid', subsample=(1,1), activation = 'relu', name = 'Conv5'))
 model.add(Dropout(0.2))
 
 # Pooling 2
 model.add(MaxPooling2D(pool_size=pool_size))
 
 # Conv Layer 6
-model.add(Convolution2D(256, 3, 3, border_mode='valid', subsample=(1,1), activation = 'relu', name = 'Conv6'))
+model.add(Convolution2D(128, 3, 3, border_mode='valid', subsample=(1,1), activation = 'relu', name = 'Conv6'))
 model.add(Dropout(0.2))
 
 # Conv Layer 7
-model.add(Convolution2D(256, 3, 3, border_mode='valid', subsample=(1,1), activation = 'relu', name = 'Conv7'))
+model.add(Convolution2D(128, 3, 3, border_mode='valid', subsample=(1,1), activation = 'relu', name = 'Conv7'))
 model.add(Dropout(0.2))
 
 # Pooling 3
@@ -88,12 +88,12 @@ model.add(MaxPooling2D(pool_size=pool_size))
 model.add(UpSampling2D(size=pool_size))
 
 # Deconv 1
-model.add(Deconvolution2D(256, 3, 3, border_mode='valid', subsample=(1,1), activation = 'relu', 
+model.add(Deconvolution2D(128, 3, 3, border_mode='valid', subsample=(1,1), activation = 'relu', 
                           output_shape = model.layers[8].output_shape, name = 'Deconv1'))
 model.add(Dropout(0.2))
 
 # Deconv 2
-model.add(Deconvolution2D(256, 3, 3, border_mode='valid', subsample=(1,1), activation = 'relu', 
+model.add(Deconvolution2D(128, 3, 3, border_mode='valid', subsample=(1,1), activation = 'relu', 
                           output_shape = model.layers[7].output_shape, name = 'Deconv2'))
 model.add(Dropout(0.2))
 
@@ -101,17 +101,17 @@ model.add(Dropout(0.2))
 model.add(UpSampling2D(size=pool_size))
 
 # Deconv 3
-model.add(Deconvolution2D(128, 3, 3, border_mode='valid', subsample=(1,1), activation = 'relu', 
+model.add(Deconvolution2D(64, 3, 3, border_mode='valid', subsample=(1,1), activation = 'relu', 
                           output_shape = model.layers[5].output_shape, name = 'Deconv3'))
 model.add(Dropout(0.2))
 
 # Deconv 4
-model.add(Deconvolution2D(128, 3, 3, border_mode='valid', subsample=(1,1), activation = 'relu', 
+model.add(Deconvolution2D(64, 3, 3, border_mode='valid', subsample=(1,1), activation = 'relu', 
                           output_shape = model.layers[4].output_shape, name = 'Deconv4'))
 model.add(Dropout(0.2))
 
 # Deconv 5
-model.add(Deconvolution2D(128, 3, 3, border_mode='valid', subsample=(1,1), activation = 'relu', 
+model.add(Deconvolution2D(64, 3, 3, border_mode='valid', subsample=(1,1), activation = 'relu', 
                           output_shape = model.layers[3].output_shape, name = 'Deconv5'))
 model.add(Dropout(0.2))
 
@@ -119,7 +119,7 @@ model.add(Dropout(0.2))
 model.add(UpSampling2D(size=pool_size))
 
 # Deconv 6
-model.add(Deconvolution2D(64, 3, 3, border_mode='valid', subsample=(1,1), activation = 'relu', 
+model.add(Deconvolution2D(32, 3, 3, border_mode='valid', subsample=(1,1), activation = 'relu', 
                           output_shape = model.layers[1].output_shape, name = 'Deconv6'))
 
 # Final layer - only including one channel so 1 filter
@@ -127,6 +127,8 @@ model.add(Deconvolution2D(1, 3, 3, border_mode='valid', subsample=(1,1), activat
                           output_shape = model.layers[0].output_shape, name = 'Final'))
 
 ### End of network ###
+
+model.summary()
 
 
 # Using a generator to help the model use less data
