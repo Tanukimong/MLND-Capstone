@@ -28,25 +28,26 @@ def tanuki_net(input_shape, pool_size):
     pool3 = MaxPooling2D(pool_size=(2, 2))(drop3)
 
     up1 = UpSampling2D(size=pool_size)(pool3)
-    deconv1 = Conv2DTranspose(128, 3, strides=(1, 1), padding='valid', activation = 'relu', output_shape = model.layers[16].output_shape)(up1)
+    deconv1 = Conv2DTranspose(128, 3, strides=(1, 1), padding='valid', activation = 'relu')(up1)
     drop4 = Dropout(0.2)(deconv1)
-    deconv1 = Conv2DTranspose(128, 3, strides=(1, 1), padding='valid', activation = 'relu', output_shape = model.layers[14].output_shape)(drop4)
+    deconv1 = Conv2DTranspose(128, 3, strides=(1, 1), padding='valid', activation = 'relu')(drop4)
     drop4 = Dropout(0.2)(deconv1)
 
     up2 = UpSampling2D(size=pool_size)(drop4)
-    deconv2 = Conv2DTranspose(64, 3, strides=(1, 1), padding='valid', activation = 'relu', output_shape = model.layers[11].output_shape)(up2)
+    deconv2 = Conv2DTranspose(64, 3, strides=(1, 1), padding='valid', activation = 'relu')(up2)
     drop5 = Dropout(0.2)(deconv2)
-    deconv2 = Conv2DTranspose(64, 3, strides=(1, 1), padding='valid', activation = 'relu', output_shape = model.layers[9].output_shape)(drop5)
+    deconv2 = Conv2DTranspose(64, 3, strides=(1, 1), padding='valid', activation = 'relu')(drop5)
     drop5 = Dropout(0.2)(deconv2)
-    deconv2 = Conv2DTranspose(64, 3, strides=(1, 1), padding='valid', activation = 'relu', output_shape = model.layers[7].output_shape)(drop5)
+    deconv2 = Conv2DTranspose(64, 3, strides=(1, 1), padding='valid', activation = 'relu')(drop5)
     drop5 = Dropout(0.2)(deconv2)
 
     up3 = UpSampling2D(size=pool_size)(drop5)
-    deconv3 = Conv2DTranspose(32, 3, strides=(1, 1), padding='valid', activation = 'relu', output_shape = model.layers[2].output_shape)(up3)
+    deconv3 = Conv2DTranspose(32, 3, strides=(1, 1), padding='valid', activation = 'relu')(up3)
     drop6 = Dropout(0.2)(deconv3)
-    deconv3 = Conv2DTranspose(32, 3, strides=(1, 1), padding='valid', activation = 'relu', output_shape = model.layers[1].output_shape)(drop6)
-    deconv3 = Conv2DTranspose(1, 3, strides=(1, 1), padding='valid', activation = 'relu', output_shape = model.layers[0].output_shape)(drop6)
+    deconv3 = Conv2DTranspose(32, 3, strides=(1, 1), padding='valid', activation = 'relu')(drop6)
+    deconv4 = Conv2DTranspose(1, 3, strides=(1, 1), padding='valid', activation = 'relu')(drop6)
 
+    model = Model(input = inputs, output = deconv4)
     model.compile(optimizer = Adam(lr = 1e-4), loss='mean_absolute_error', metrics = ['accuracy'])
 
     return model
