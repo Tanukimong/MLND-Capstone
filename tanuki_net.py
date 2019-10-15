@@ -1,154 +1,52 @@
-""" This file contains code for a fully convolutional
-(i.e. contains zero fully connected layers) neural network
-for detecting lanes. This version assumes the inputs
-to be road images in the shape of 80 x 160 x 3 (RGB) with
-the labels as 80 x 160 x 1 (just the G channel with a
-re-drawn lane). Note that in order to view a returned image,
-the predictions is later stacked with zero'ed R and B layers
-and added back to the initial road image.
-"""
+from keras.models import *
+from keras.layers import *
+from keras.optimizers import *
+from keras.callbacks import ModelCheckpoint, LearningRateScheduler
+from keras import backend as keras
 
-import numpy as np
-import pickle
-from sklearn.utils import shuffle
-from sklearn.model_selection import train_test_split
+def tanuki_net(input_shape):
+    inputs = Input(input_shape) 
+    batch = BatchNormalization()(inputs) #0 
+    conv1 = Conv2D(32, 3, activation = 'relu', padding = 'valid', kernel_initializer = 'he_normal')(batch)
+    drop1 = Dropout(0.2)(conv1)#2
+    conv1 = Conv2D(32, 3, activation = 'relu', padding = 'valid', kernel_initializer = 'he_normal')(drop1)
+    drop1 = Dropout(0.2)(conv1)#4
+    pool1 = MaxPooling2D(pool_size=(2, 2))(drop1)
 
-# Import necessary items from Keras
-from keras.models import Sequential
-from keras.layers import Activation, Dropout, UpSampling2D
-from keras.layers import Deconvolution2D, Convolution2D, MaxPooling2D
-from keras.layers.normalization import BatchNormalization
-from keras.preprocessing.image import ImageDataGenerator
+    conv2 = Conv2D(64, 3, activation = 'relu', padding = 'valid', kernel_initializer = 'he_normal')(pool1)
+    drop2 = Dropout(0.2)(conv2)#7
+    conv2 = Conv2D(64, 3, activation = 'relu', padding = 'valid', kernel_initializer = 'he_normal')(drop2)
+    drop2 = Dropout(0.2)(conv2)
+    conv2 = Conv2D(64, 3, activation = 'relu', padding = 'valid', kernel_initializer = 'he_normal')(drop2)
+    drop2 = Dropout(0.2)(conv2)#11
+    pool2 = MaxPooling2D(pool_size=(2, 2))(drop2)
 
-# Load training images
-train_images,labels, _ = pickle.load(open("tanuki_train.p", "rb" ))
+    conv3 = Conv2D(128, 3, activation = 'relu', padding = 'valid', kernel_initializer = 'he_normal')(pool2)
+    drop3 = Dropout(0.2)(conv3)#14
+    conv3 = Conv2D(128, 3, activation = 'relu', padding = 'valid', kernel_initializer = 'he_normal')(drop3)
+    drop3 = Dropout(0.2)(conv3)
+    pool3 = MaxPooling2D(pool_size=(2, 2))(drop3)
 
-# Make into arrays as the neural network wants these
-labels = labels[:,1:-1,:-1, np.newaxis]
+    up1 = UpSampling2D(size=pool_size)(pool3)
+    deconv1 = Conv2DTranspose(128, 3, strides=(1, 1), padding='valid', activation = 'relu', output_shape = model.layers[16].output_shape)(up1)
+    drop4 = Dropout(0.2)(deconv1)
+    deconv1 = Conv2DTranspose(128, 3, strides=(1, 1), padding='valid', activation = 'relu', output_shape = model.layers[14].output_shape)(drop4)
+    drop4 = Dropout(0.2)(deconv1)
 
-print("Train_imgs is {}, labels is {}".format(train_images.shape, labels.shape))
+    up2 = UpSampling2D(size=pool_size)(drop4)
+    deconv2 = Conv2DTranspose(64, 3, strides=(1, 1), padding='valid', activation = 'relu', output_shape = model.layers[11].output_shape)(up2)
+    drop5 = Dropout(0.2)(deconv2)
+    deconv2 = Conv2DTranspose(64, 3, strides=(1, 1), padding='valid', activation = 'relu', output_shape = model.layers[9].output_shape)(drop5)
+    drop5 = Dropout(0.2)(deconv2)
+    deconv2 = Conv2DTranspose(64, 3, strides=(1, 1), padding='valid', activation = 'relu', output_shape = model.layers[7].output_shape)(drop5)
+    drop5 = Dropout(0.2)(deconv2)
 
-# Normalize labels - training images get normalized to start in the network
-labels = labels / 255
+    up3 = UpSampling2D(size=pool_size)(drop5)
+    deconv3 = Conv2DTranspose(32, 3, strides=(1, 1), padding='valid', activation = 'relu', output_shape = model.layers[2].output_shape)(up3)
+    drop6 = Dropout(0.2)(deconv3)
+    deconv3 = Conv2DTranspose(32, 3, strides=(1, 1), padding='valid', activation = 'relu', output_shape = model.layers[1].output_shape)(drop6)
+    deconv3 = Conv2DTranspose(1, 3, strides=(1, 1), padding='valid', activation = 'relu', output_shape = model.layers[0].output_shape)(drop6)
 
-# Shuffle images along with their labels, then split into training/validation sets
-train_images, labels = shuffle(train_images, labels)
+    model.compile(optimizer = Adam(lr = 1e-4), loss='mean_absolute_error', metrics = ['accuracy'])
 
-# Test size may be 10% or 20%
-X_train, X_val, y_train, y_val = train_test_split(train_images, labels, test_size=0.1)
-
-# Batch size, epochs and pool size below are all paramaters to fiddle with for optimization
-batch_size = 20
-epochs = 20
-pool_size = (2, 2)
-input_shape = X_train.shape[1:]
-
-### Here is the actual neural network ###
-model = Sequential()
-# Normalizes incoming inputs. First layer needs the input shape to work
-model.add(BatchNormalization(input_shape=input_shape))
-
-# Below layers were re-named for easier reading of model summary; this not necessary
-# Conv Layer 1
-model.add(Convolution2D(32, 3, 3, border_mode='valid', subsample=(1,1), activation = 'relu', name = 'Conv1'))
-
-# Conv Layer 2
-model.add(Convolution2D(32, 3, 3, border_mode='valid', subsample=(1,1), activation = 'relu', name = 'Conv2'))
-
-# Pooling 1
-model.add(MaxPooling2D(pool_size=pool_size))
-
-# Conv Layer 3
-model.add(Convolution2D(64, 3, 3, border_mode='valid', subsample=(1,1), activation = 'relu', name = 'Conv3'))
-model.add(Dropout(0.2))
-
-# Conv Layer 4
-model.add(Convolution2D(64, 3, 3, border_mode='valid', subsample=(1,1), activation = 'relu', name = 'Conv4'))
-model.add(Dropout(0.2))
-
-# Conv Layer 5
-model.add(Convolution2D(64, 3, 3, border_mode='valid', subsample=(1,1), activation = 'relu', name = 'Conv5'))
-model.add(Dropout(0.2))
-
-# Pooling 2
-model.add(MaxPooling2D(pool_size=pool_size))
-
-# Conv Layer 6
-model.add(Convolution2D(128, 3, 3, border_mode='valid', subsample=(1,1), activation = 'relu', name = 'Conv6'))
-model.add(Dropout(0.2))
-
-# Conv Layer 7
-model.add(Convolution2D(128, 3, 3, border_mode='valid', subsample=(1,1), activation = 'relu', name = 'Conv7'))
-model.add(Dropout(0.2))
-
-# Pooling 3
-model.add(MaxPooling2D(pool_size=pool_size))
-
-# Upsample 1
-model.add(UpSampling2D(size=pool_size))
-
-# Deconv 1
-model.add(Deconvolution2D(128, 3, 3, border_mode='valid', subsample=(1,1), activation = 'relu', 
-                          output_shape = model.layers[8].output_shape, name = 'Deconv1'))
-model.add(Dropout(0.2))
-
-# Deconv 2
-model.add(Deconvolution2D(128, 3, 3, border_mode='valid', subsample=(1,1), activation = 'relu', 
-                          output_shape = model.layers[7].output_shape, name = 'Deconv2'))
-model.add(Dropout(0.2))
-
-# Upsample 2
-model.add(UpSampling2D(size=pool_size))
-
-# Deconv 3
-model.add(Deconvolution2D(64, 3, 3, border_mode='valid', subsample=(1,1), activation = 'relu', 
-                          output_shape = model.layers[5].output_shape, name = 'Deconv3'))
-model.add(Dropout(0.2))
-
-# Deconv 4
-model.add(Deconvolution2D(64, 3, 3, border_mode='valid', subsample=(1,1), activation = 'relu', 
-                          output_shape = model.layers[4].output_shape, name = 'Deconv4'))
-model.add(Dropout(0.2))
-
-# Deconv 5
-model.add(Deconvolution2D(64, 3, 3, border_mode='valid', subsample=(1,1), activation = 'relu', 
-                          output_shape = model.layers[3].output_shape, name = 'Deconv5'))
-model.add(Dropout(0.2))
-
-# Upsample 3
-model.add(UpSampling2D(size=pool_size))
-
-# Deconv 6
-model.add(Deconvolution2D(32, 3, 3, border_mode='valid', subsample=(1,1), activation = 'relu', 
-                          output_shape = model.layers[1].output_shape, name = 'Deconv6'))
-
-# Final layer - only including one channel so 1 filter
-model.add(Deconvolution2D(1, 3, 3, border_mode='valid', subsample=(1,1), activation = 'relu', 
-                          output_shape = model.layers[0].output_shape, name = 'Final'))
-
-### End of network ###
-
-model.summary()
-
-
-# Using a generator to help the model use less data
-# I found NOT using any image augmentation here surprisingly yielded slightly better results
-# Channel shifts help with shadows but overall detection is worse
-datagen = ImageDataGenerator()
-datagen.fit(X_train)
-
-# Compiling and training the model
-model.compile(optimizer='Adam', loss='binary_crossentropy', metrics = ['accuracy'])
-model.fit_generator(datagen.flow(X_train, y_train, batch_size=batch_size), samples_per_epoch = len(X_train),
-                    nb_epoch=epochs, verbose=1, validation_data=(X_val, y_val))
-
-# Save model architecture and weights
-model_json = model.to_json()
-with open("new_model.json", "w") as json_file:
-    json_file.write(model_json)
-
-model.save_weights('new_model.h5')
-
-# Show summary of model
-model.summary()
-
+    return model
