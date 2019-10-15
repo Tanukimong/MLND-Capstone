@@ -9,11 +9,11 @@ import warnings
 warnings.filterwarnings(action='ignore') # 귀찮은 경고 감추기
 
 # Load Keras model
-json_file = open('tanuki_model.json', 'r')
+json_file = open('new_model.json', 'r')
 json_model = json_file.read()
 json_file.close()
 model = model_from_json(json_model)
-model.load_weights('tanuki_model.h5')
+model.load_weights('new_model.h5')
 
 scaler = 6
 resized_shape = (1640//scaler, 590//scaler)
