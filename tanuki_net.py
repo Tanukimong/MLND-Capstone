@@ -4,7 +4,7 @@ from keras.optimizers import *
 from keras.callbacks import ModelCheckpoint, LearningRateScheduler
 from keras import backend as keras
 
-def tanuki_net(input_shape):
+def tanuki_net(input_shape, pool_size):
     inputs = Input(input_shape) 
     batch = BatchNormalization()(inputs) #0 
     conv1 = Conv2D(32, 3, activation = 'relu', padding = 'valid', kernel_initializer = 'he_normal')(batch)
