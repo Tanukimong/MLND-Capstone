@@ -40,7 +40,7 @@ X_train, X_val, y_train, y_val = train_test_split(train_images, labels, test_siz
 
 # Batch size, epochs and pool size below are all paramaters to fiddle with for optimization
 batch_size = 50
-epochs = 1
+epochs = 20
 pool_size = (2, 2)
 input_shape = X_train.shape[1:]
 
