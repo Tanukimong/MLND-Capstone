@@ -48,6 +48,6 @@ def tanuki_net(input_shape, pool_size):
     deconv4 = Conv2DTranspose(1, 3, strides=(1, 1), padding='valid', activation = 'relu')(drop6)
 
     model = Model(input = inputs, output = deconv4)
-    model.compile(optimizer = Adam(lr = 1e-4), loss='mean_absolute_error', metrics = ['accuracy'])
+    model.compile(optimizer = Adam(lr = 1e-4), loss='mean_square_error', metrics = ['accuracy'])
 
     return model
