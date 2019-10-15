@@ -61,6 +61,3 @@ with open("new_model.json", "w") as json_file:
     json_file.write(model_json)
 
 model.save_weights('new_model.h5')
-
-# Show summary of model
-model.summary()
