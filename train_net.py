@@ -58,7 +58,7 @@ model.fit_generator(datagen.flow(X_train, y_train, batch_size=batch_size), sampl
 
 # Save model architecture and weights
 model_json = model.to_json()
-with open("new_model.json", "w") as json_file:
+with open("merge_model.json", "w") as json_file:
     json_file.write(model_json)
 
-model.save_weights('new_model.h5')
+model.save_weights('merge_model.h5')

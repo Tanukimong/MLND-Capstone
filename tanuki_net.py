@@ -22,8 +22,8 @@ def tanuki_net(input_shape, pool_size):
     pool2 = MaxPooling2D(pool_size=(2, 2))(drop2)
 
     conv3 = Conv2D(128, 3, activation = 'relu', padding = 'valid', kernel_initializer = 'he_normal')(pool2)
-    drop3 = Dropout(0.2)(conv3)#14
-    conv3 = Conv2D(128, 3, activation = 'relu', padding = 'valid', kernel_initializer = 'he_normal')(drop3)
+    drop3_1 = Dropout(0.2)(conv3)#14
+    conv3 = Conv2D(128, 3, activation = 'relu', padding = 'valid', kernel_initializer = 'he_normal')(drop3_1)
     drop3 = Dropout(0.2)(conv3)
     pool3 = MaxPooling2D(pool_size=(2, 2))(drop3)
 
@@ -35,6 +35,7 @@ def tanuki_net(input_shape, pool_size):
 
     up2 = UpSampling2D(size=pool_size)(drop4)
     deconv2 = Conv2DTranspose(64, 3, strides=(1, 1), padding='valid', activation = 'relu')(up2)
+    merge1 = Concatenate([drop3_1,deconv2], axis = 3)
     drop5 = Dropout(0.2)(deconv2)
     deconv2 = Conv2DTranspose(64, 3, strides=(1, 1), padding='valid', activation = 'relu')(drop5)
     drop5 = Dropout(0.2)(deconv2)
