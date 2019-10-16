@@ -14,6 +14,9 @@ json_model = json_file.read()
 json_file.close()
 model = model_from_json(json_model)
 model.load_weights('similarand4batch_model.h5')
+model.compile(optimizer = 'Adam', loss='mean_squared_error', metrics = ['accuracy'])
+
+model.summary()
 
 scaler = 6
 resized_shape = (1640//scaler, 590//scaler)
