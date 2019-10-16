@@ -9,11 +9,11 @@ import warnings
 warnings.filterwarnings(action='ignore') # 귀찮은 경고 감추기
 
 # Load Keras model
-json_file = open('similar_no_merge_model.json', 'r')
+json_file = open('master_model.json', 'r')
 json_model = json_file.read()
 json_file.close()
 model = model_from_json(json_model)
-model.load_weights('similar_no_merge_model.h5')
+model.load_weights('master_model.h5')
 model.compile(optimizer = 'Adam', loss='mean_squared_error', metrics = ['accuracy'])
 
 model.summary()
