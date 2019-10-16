@@ -32,8 +32,7 @@ def tanuki_net(input_shape, pool_size):
     up1 = UpSampling2D(size=pool_size)(pool3)
     batch = BatchNormalization()(up1)
     deconv1 = Conv2DTranspose(10, 3, strides=(1, 1), padding='valid', activation = 'relu')(batch)
-    merge1 = concatenate([drop3_1,deconv1], axis = 3)
-    drop4 = Dropout(0.2)(merge1)
+    drop4 = Dropout(0.2)(deconv1)
     deconv1 = Conv2DTranspose(20, 3, strides=(1, 1), padding='valid', activation = 'relu')(drop4)
     drop4 = Dropout(0.2)(deconv1)
 
